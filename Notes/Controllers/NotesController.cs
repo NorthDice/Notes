@@ -7,9 +7,9 @@ namespace Notes.Controllers
     public class NotesController : Controller
     {
         [HttpPost]
-        public async Task<IActionResult> Create()
+        public async Task<IActionResult> Create(string title, string description)
         {
-            return Ok();
+            
         }
 
         [HttpGet]
