@@ -29,7 +29,7 @@ namespace Notes.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Get()
+        public async Task<IActionResult> Get(GetNotesRequest request)
         {
 
 
