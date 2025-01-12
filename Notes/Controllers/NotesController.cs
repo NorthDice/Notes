@@ -44,6 +44,9 @@ namespace Notes.Controllers
                 _ => note => note.CreatedAt
             };
 
+            notesQuery = request.SortOrder == "desc"
+                ? notesQuery.OrderByDescending(selectorKey)
+                : notesQuery.OrderBy(selectorKey);
 
             var noteDtos = await notesQuery
                 .Select(n => new NoteDto(n.Id, n.Title, n.Description, n.CreatedAt))
