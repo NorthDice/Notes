@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Notes.Contracts;
 using Notes.DataAccess;
 using Notes.Models;
+using System.Linq.Expressions;
 
 namespace Notes.Controllers
 {
@@ -17,14 +19,14 @@ namespace Notes.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody]CreateNoteRequest request,CancellationToken ct )
+        public async Task<IActionResult> Create([FromBody] CreateNoteRequest request, CancellationToken ct)
         {
-            var note = new Note(request.Title,request.Description);
+            var note = new Note(request.Title, request.Description);
 
             await _dbContext.Notes.AddAsync(note, ct);
-            
+
             await _dbContext.SaveChangesAsync(ct);
-            
+
             return Ok();
         }
 
@@ -35,9 +37,20 @@ namespace Notes.Controllers
                 .Where(n => !string.IsNullOrWhiteSpace(request.Search) &&
                         n.Title.ToLower().Contains(request.Search.ToLower()));
 
+            Expression<Func<Note, object>> selectorKey = request.SortItem?.ToLower() switch
+            {
+                "date" => note => note.CreatedAt,
+                "title" => note => note.Title,
+                _ => note => note.CreatedAt
+            };
 
 
-            return Ok();
+            var noteDtos = await notesQuery
+                .Select(n => new NoteDto(n.Id, n.Title, n.Description, n.CreatedAt))
+                .ToListAsync(cancellationToken: ct);
+
+            return Ok(new GetNotesResponse(noteDtos));
         }
+
     }
 }
