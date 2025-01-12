@@ -17,16 +17,22 @@ namespace Notes.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody]CreateNoteRequest request )
+        public async Task<IActionResult> Create([FromBody]CreateNoteRequest request,CancellationToken ct )
         {
             var note = new Note(request.Title,request.Description);
 
-            _dbContext.AddAsync(note); 
+            await _dbContext.Notes.AddAsync(note, ct);
+            
+            await _dbContext.SaveChangesAsync(ct);
+            
+            return Ok();
         }
 
         [HttpGet]
         public async Task<IActionResult> Get()
         {
+
+
             return Ok();
         }
     }
